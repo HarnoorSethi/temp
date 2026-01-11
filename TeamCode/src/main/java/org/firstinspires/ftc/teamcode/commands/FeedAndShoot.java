@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.distanceLUT;
-import org.firstinspires.ftc.teamcode.util.scoringGoal;
+import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,7 +16,7 @@ public class FeedAndShoot extends CommandBase {
 
 
 
-    private scoringGoal goal;
+    private ScoringGoal goal;
 
 
     private Shooter shooter;
@@ -35,11 +35,10 @@ public class FeedAndShoot extends CommandBase {
 
     public double lastP = 0.0024;
     Intake intake;
-    public FeedAndShoot(Shooter shooter, Intake intake, scoringGoal goal) {
+    public FeedAndShoot(Shooter shooter, Intake intake) {
  
         this.intake = intake;
 
-        this.goal = goal;
         this.shooter = shooter;
         addRequirements(shooter);
 
