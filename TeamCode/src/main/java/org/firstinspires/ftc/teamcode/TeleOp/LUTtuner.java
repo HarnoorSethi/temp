@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
@@ -39,6 +39,8 @@ public class LUTtuner extends OpMode {
         feedAndShoot.execute();
 
         telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
-
+        telemetry.addData("Target RPM", feedAndShoot.distanceOffset);
+        telemetry.addData("RPM", shooter.currentVelocity);
+        telemetry.update();
     }
 }
