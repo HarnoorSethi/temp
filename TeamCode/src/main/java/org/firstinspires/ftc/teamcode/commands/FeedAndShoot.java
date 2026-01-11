@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.distanceLUT;
-import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.util.concurrent.TimeUnit;
 

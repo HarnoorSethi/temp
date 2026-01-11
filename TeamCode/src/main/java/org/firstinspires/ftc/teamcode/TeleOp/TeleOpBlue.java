@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -8,11 +8,12 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
 
-import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 import org.firstinspires.ftc.teamcode.commands.FeedAndShoot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 public class TeleOpBlue extends CommandOpMode {
 
@@ -50,6 +51,6 @@ public class TeleOpBlue extends CommandOpMode {
     @Override
     public void run(){
         super.run();
-        feedAndShoot.updateFeedAndShootDistance(drivebase.getPose().distanceFrom(ScoringGoal.BLUE.getPose()));
+        feedAndShoot.updateFeedAndShootDistance(drivebase.getPose().distanceFrom(org.firstinspires.ftc.teamcode.util.ScoringGoal.BLUE.getPose()));
     }
 }

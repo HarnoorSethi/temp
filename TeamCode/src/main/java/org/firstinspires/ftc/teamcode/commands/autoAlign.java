@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
 
-import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
 @Configurable
 public class autoAlign extends CommandBase {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
@@ -6,7 +6,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 import org.firstinspires.ftc.teamcode.commands.FeedAndShoot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;

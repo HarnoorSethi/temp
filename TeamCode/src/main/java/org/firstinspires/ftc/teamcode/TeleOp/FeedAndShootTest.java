@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Util.ScoringGoal;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 import org.firstinspires.ftc.teamcode.commands.FeedAndShoot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
