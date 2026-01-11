@@ -41,8 +41,7 @@ public class TeleOpBlue extends CommandOpMode {
         intake.setDefaultCommand(
                 new RunCommand(() ->
                         intake.setIntakePower(
-
-                                -driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) +
+                                driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) -
                                         driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)
                         ), intake)
         );

@@ -25,6 +25,7 @@ public class FeedAndShoot extends CommandBase {
 
     public double distance = 200;
     public boolean rapidFire = false;
+    public double distanceOffset = 0;
 
 
 
@@ -62,7 +63,8 @@ public class FeedAndShoot extends CommandBase {
         double llTargetHeadingOffset = 0;
 
 
-        shooter.setTargetVelocity(distanceLUT.getRPM(distance));
+        //shooter.setTargetVelocity(distanceLUT.getRPM(distance));
+        shooter.setTargetVelocity(distanceOffset);
 
         if (fire && shooter.isReadyToShoot() && !rapidFire) {
             rapidFire = true;
