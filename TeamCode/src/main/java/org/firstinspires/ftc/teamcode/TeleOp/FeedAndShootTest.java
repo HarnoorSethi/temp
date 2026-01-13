@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -30,11 +30,17 @@ public class FeedAndShootTest extends OpMode {
 
     @Override
     public void loop() {
-        feedAndShoot.updateFeedAndShootDistance(drivebase.getPose().distanceFrom(scoringGoal.getPose()));
+        feedAndShoot.updateFeedAndShootDistance(Math.min(Math.max(drivebase.getPose().distanceFrom(scoringGoal.getPose()), 135), 10));
         feedAndShoot.execute();
+        intake.setIntakePower(1);
+        shooter.periodic();
+        drivebase.periodic();
         telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
         telemetry.addData("Velocity", shooter.currentVelocity);
         telemetry.addData("Target Velocity", shooter.targetVelocity);
+        telemetry.addData("pose", drivebase.getPose().toString());
+        telemetry.addData("scoring pose", scoringGoal.getPose().toString());
+
         telemetry.update();
     }
 }

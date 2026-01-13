@@ -5,9 +5,10 @@ import com.arcrobotics.ftclib.util.LUT;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
+import org.firstinspires.ftc.teamcode.TeleOp.distanceLUT;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.Util.distanceLUT;
+
 import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.util.concurrent.TimeUnit;
@@ -62,9 +63,8 @@ public class FeedAndShoot extends CommandBase {
     public void execute() {
         double llTargetHeadingOffset = 0;
 
+        shooter.setTargetVelocity(distanceLUT.getRPM(distance + distanceOffset));
 
-        //shooter.setTargetVelocity(distanceLUT.getRPM(distance));
-        shooter.setTargetVelocity(distanceOffset);
 
         if (fire && shooter.isReadyToShoot() && !rapidFire) {
             rapidFire = true;

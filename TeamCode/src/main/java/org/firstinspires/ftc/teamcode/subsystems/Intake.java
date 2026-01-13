@@ -21,7 +21,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setIntakePower(double power){
-        intake.setPower(power);
+        intake.setPower(-power);
     }
 
 }

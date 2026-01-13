@@ -63,8 +63,8 @@ public class Shooter extends SubsystemBase {
     public double smoothedAcceleration = 0.0;
 
 
-    public static double kP = 0.0016;
-    public static double kI = 0.0005;
+    public static double kP = 0.0008;
+    public static double kI = 0.0006;
     public static double kD = 0.0;
 
 
@@ -104,14 +104,14 @@ public class Shooter extends SubsystemBase {
     }
 
     public void feed(){
-        feeder.setPower(1);
+        feeder.setPower(-1);
     }
 
     public void stopFeeder(){
         feeder.setPower(0);
     }
     public void reverseFeed(){
-        feeder.setPower(-1);
+        feeder.setPower(1);
     }
 
     public void setPConstant(double P){

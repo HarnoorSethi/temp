@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -22,6 +22,7 @@ public class AutoAlignTest extends OpMode {
 
     @Override
     public void loop() {
+        drivebase.periodic();
         align.execute();
         telemetry.addData("Target Heading", align.targetHeading);
         telemetry.addData("Current Heading", align.currentHeading);

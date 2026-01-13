@@ -29,7 +29,7 @@ public class autoAlign extends CommandBase {
     @Override
     public void execute(){
         currentHeading = drivebase.getPose().getHeading();
-        targetHeading = Math.atan2(scoringGoal.getPose().getY() - drivebase.getPose().getY(), scoringGoal.getPose().getX() - drivebase.getPose().getX());
+        targetHeading = Math.PI + Math.atan2(scoringGoal.getPose().getY() - drivebase.getPose().getY(), scoringGoal.getPose().getX() - drivebase.getPose().getX());
         rotationPower = rotateController.calculate(currentHeading,targetHeading);
         drivebase.setMovementVectors(0,0, rotationPower);
     }
