@@ -24,7 +24,7 @@ public class autoAlign extends CommandBase {
     // ===== PID =====
     private final PIDController pid;
 
-    public static double kp = 0.22;
+    public static double kp = 0.5;
     public static double ki = 0.0;
     public static double kd = 0.015;
 
@@ -35,6 +35,8 @@ public class autoAlign extends CommandBase {
     // ===== STATE =====
     public boolean alignOn = false;
     public double llOffset = LL_INVALID;
+    public double angleOffset = 0;
+    public double error;
 
     private final ElapsedTime llTimer = new ElapsedTime();
 
@@ -77,9 +79,9 @@ public class autoAlign extends CommandBase {
         );
 
         // Shooter is on the BACK
-        double targetHeading = normalize(goalAngle);
+        double targetHeading = normalize(goalAngle + angleOffset);
 
-        double error = shortestAngleError(targetHeading, robotHeading);
+        error = shortestAngleError(targetHeading, robotHeading);
 
         // Prefer Limelight when valid
         if (llOffset != LL_INVALID) {
@@ -108,7 +110,12 @@ public class autoAlign extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        if (Math.abs(Math.toDegrees(error)) < deadbandDeg) {
+            drivebase.setMovementVectors(0, 0, 0);
+            pid.reset();
+            return true;
+        }
+        else return false;
     }
 
     // ================= HELPERS =================

@@ -31,6 +31,7 @@ public class s extends CommandOpMode {
 
     // Input
     private GamepadEx driver;
+    private GamepadEx operator;
 
     // Vision
     private Limelight3A ll;
@@ -42,6 +43,7 @@ public class s extends CommandOpMode {
 
         // ================= HARDWARE =================
         driver = new GamepadEx(gamepad1);
+        operator = new GamepadEx(gamepad2);
 
         drivebase = new Drivebase(hardwareMap);
         shooter = new Shooter(hardwareMap, telemetry);
@@ -58,10 +60,14 @@ public class s extends CommandOpMode {
 
         // ================= COMMANDS =================
         feedAndShoot = new FeedAndShoot(shooter, intake);
+
+
         autoAlign = new autoAlign(drivebase, scoringGoal, ll);
 
         // ================= REGISTER SUBSYSTEMS =================
         register(drivebase, shooter, intake);
+
+
 
         // ================= DEFAULT COMMANDS =================
 
@@ -96,11 +102,17 @@ public class s extends CommandOpMode {
         // ================= BUTTON BINDINGS =================
 
         // Toggle firing
-        new GamepadButton(driver, GamepadKeys.Button.A)
-                .whenPressed(new InstantCommand(feedAndShoot::toggleFire));
+        new GamepadButton(operator, GamepadKeys.Button.A)
+                .whenPressed(new InstantCommand(() -> {
+                    autoAlign.alignOn = !autoAlign.alignOn;
+                    drivebase.setMovementVectors(0, 0, 0);
+                    if(autoAlign.isFinished()){
+                        new InstantCommand(feedAndShoot::toggleFire);
+                    }
+        }));
 
         // Toggle auto-align
-        new GamepadButton(driver, GamepadKeys.Button.B)
+        new GamepadButton(operator, GamepadKeys.Button.B)
                 .whenPressed(new InstantCommand(() -> {
                     autoAlign.alignOn = !autoAlign.alignOn;
                     drivebase.setMovementVectors(0, 0, 0);
@@ -127,6 +139,10 @@ public class s extends CommandOpMode {
                         10
                 )
         );
+        if (gamepad2.dpadUpWasPressed())feedAndShoot.distanceOffset += 5;
+        if(gamepad2.dpadDownWasPressed()) feedAndShoot.distanceOffset -= 5;
+        if (gamepad2.dpadLeftWasPressed())autoAlign.angleOffset += 2.5;
+        if(gamepad2.dpadRightWasPressed()) autoAlign.angleOffset -= 2.5;
 
         // ================= TELEMETRY =================
         telemetry.addData("AutoAlign", autoAlign.alignOn);
