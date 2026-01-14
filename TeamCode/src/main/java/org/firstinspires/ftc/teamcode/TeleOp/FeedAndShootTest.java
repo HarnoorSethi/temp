@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.teleOp;
 
+import com.arcrobotics.ftclib.util.InterpLUT;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -17,15 +18,19 @@ public class FeedAndShootTest extends OpMode {
     Shooter shooter;
     ScoringGoal scoringGoal = ScoringGoal.BLUE;
     FeedAndShoot feedAndShoot;
+    InterpLUT rpmLUT;
+
 
 
     @Override
     public void init() {
+
         drivebase = new Drivebase(hardwareMap);
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap, telemetry);
         feedAndShoot = new FeedAndShoot(shooter,intake);
         drivebase.setStartingPose(new Pose(72,72, Math.toRadians(90)));
+
     }
 
     @Override

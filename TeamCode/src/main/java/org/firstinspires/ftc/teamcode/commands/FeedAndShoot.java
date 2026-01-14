@@ -41,23 +41,20 @@ public class FeedAndShoot extends CommandBase {
     public double lastP = 0.0024;
     Intake intake;
     public FeedAndShoot(Shooter shooter, Intake intake) {
-        this.rpmLUT = new InterpLUT();
+        InterpLUT rpmLUT = new InterpLUT();
 
 
         rpmLUT.add(0,     2000);   // clamp low
-        rpmLUT.add(61.5,  2200);
-        rpmLUT.add(72.4,  2350);
-        rpmLUT.add(81.5,  2450);
-        rpmLUT.add(92.2,  2450);
-        rpmLUT.add(100.6,  2600);
-        rpmLUT.add(102.4,  2700);
-        rpmLUT.add(110.6, 1700);
-        rpmLUT.add(121.9, 2950);
-        rpmLUT.add(122.5, 3000);
-        rpmLUT.add(133.4, 3000);
-        rpmLUT.add(140.8, 3150);// clamp high
+        rpmLUT.add(55,  2400);
+        rpmLUT.add(64,  2500);
+        rpmLUT.add(81,  2500);
+        rpmLUT.add(89,  2550);
+        rpmLUT.add(99.7,  2600);
+        rpmLUT.add(110,  2750);
+        rpmLUT.add(122.9, 2900);
+        rpmLUT.add(132, 3050);// clamp high
         rpmLUT.createLUT();
-
+ 
         this.intake = intake;
 
         this.shooter = shooter;
@@ -82,11 +79,10 @@ public class FeedAndShoot extends CommandBase {
     public void execute() {
         double llTargetHeadingOffset = 0;
 
-        shooter.setTargetVelocity(rpmLUT.get(distance));
+        shooter.setTargetVelocity(rpmLUT.get(distance + distanceOffset));
 
 
-        if (fire && !rapidFire) {
-
+        if (fire && shooter.isReadyToShoot() && !rapidFire) {
             rapidFire = true;
         }
         if (rapidFire){
