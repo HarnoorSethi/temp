@@ -1,0 +1,144 @@
+package org.firstinspires.ftc.teamcode.TeleOp;
+
+import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.RunCommand;
+import com.arcrobotics.ftclib.command.button.GamepadButton;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.commands.FeedAndShoot;
+import org.firstinspires.ftc.teamcode.commands.autoAlign;
+import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.util.ScoringGoal;
+
+@TeleOp(name = "TeleOp Blue (AutoAlign + Shoot)")
+public class s extends CommandOpMode {
+
+    // Subsystems
+    private Drivebase drivebase;
+    private Shooter shooter;
+    private Intake intake;
+
+    // Commands
+    private FeedAndShoot feedAndShoot;
+    private autoAlign autoAlign;
+
+    // Input
+    private GamepadEx driver;
+
+    // Vision
+    private Limelight3A ll;
+
+    private final ScoringGoal scoringGoal = ScoringGoal.BLUE;
+
+    @Override
+    public void initialize() {
+
+        // ================= HARDWARE =================
+        driver = new GamepadEx(gamepad1);
+
+        drivebase = new Drivebase(hardwareMap);
+        shooter = new Shooter(hardwareMap, telemetry);
+        intake = new Intake(hardwareMap);
+
+        ll = hardwareMap.get(Limelight3A.class, "ll");
+        ll.start();
+        ll.setPollRateHz(100);
+        ll.pipelineSwitch(0);
+
+        // ================= POSE =================
+        drivebase.setStartingPose(new Pose(72, 72, Math.toRadians(90)));
+        drivebase.startTeleOp();
+
+        // ================= COMMANDS =================
+        feedAndShoot = new FeedAndShoot(shooter, intake);
+        autoAlign = new autoAlign(drivebase, scoringGoal, ll);
+
+        // ================= REGISTER SUBSYSTEMS =================
+        register(drivebase, shooter, intake);
+
+        // ================= DEFAULT COMMANDS =================
+
+        // DRIVE (manual unless auto-align is on)
+        drivebase.setDefaultCommand(
+                new RunCommand(() -> {
+                    if (!autoAlign.alignOn) {
+                        drivebase.setMovementVectors(
+                                -gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x,
+                                gamepad1.right_stick_x
+                        );
+                    }
+                }, drivebase)
+        );
+
+        // SHOOTER / FEED
+        shooter.setDefaultCommand(feedAndShoot);
+
+        // INTAKE (manual unless firing)
+        intake.setDefaultCommand(
+                new RunCommand(() -> {
+                    if (!feedAndShoot.fire) {
+                        intake.setIntakePower(
+                                driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)
+                                        - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)
+                        );
+                    }
+                }, intake)
+        );
+
+        // ================= BUTTON BINDINGS =================
+
+        // Toggle firing
+        new GamepadButton(driver, GamepadKeys.Button.A)
+                .whenPressed(new InstantCommand(feedAndShoot::toggleFire));
+
+        // Toggle auto-align
+        new GamepadButton(driver, GamepadKeys.Button.B)
+                .whenPressed(new InstantCommand(() -> {
+                    autoAlign.alignOn = !autoAlign.alignOn;
+                    drivebase.setMovementVectors(0, 0, 0);
+                }));
+    }
+
+    @Override
+    public void run() {
+        super.run();
+
+        // ================= AUTO-ALIGN EXECUTION =================
+        if (autoAlign.alignOn) {
+            autoAlign.execute();
+        }
+
+        // ================= DISTANCE UPDATE =================
+        feedAndShoot.updateFeedAndShootDistance(
+                Math.max(
+                        Math.min(
+                                drivebase.getPose().distanceFrom(scoringGoal.getPose())
+                                        + feedAndShoot.distanceOffset,
+                                130
+                        ),
+                        10
+                )
+        );
+
+        // ================= TELEMETRY =================
+        telemetry.addData("AutoAlign", autoAlign.alignOn);
+        telemetry.addData(
+                "LL Offset (deg)",
+                autoAlign.llOffset == autoAlign.LL_INVALID
+                        ? "INVALID"
+                        : Math.toDegrees(autoAlign.llOffset)
+        );
+        telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
+        telemetry.addData("Shooter Velocity", shooter.currentVelocity);
+        telemetry.addData("Shooter Target", shooter.targetVelocity);
+        telemetry.update();
+    }
+}
