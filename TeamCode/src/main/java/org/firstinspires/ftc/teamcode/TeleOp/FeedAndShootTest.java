@@ -30,9 +30,18 @@ public class FeedAndShootTest extends OpMode {
 
     @Override
     public void loop() {
-        feedAndShoot.updateFeedAndShootDistance(Math.min(Math.max(drivebase.getPose().distanceFrom(scoringGoal.getPose()), 135), 10));
+        feedAndShoot.updateFeedAndShootDistance(Math.max(Math.min(drivebase.getPose().distanceFrom(scoringGoal.getPose()) + feedAndShoot.distanceOffset, 130), 10));
         feedAndShoot.execute();
-        intake.setIntakePower(1);
+        if (gamepad1.aWasPressed()){
+            feedAndShoot.toggleFire();
+        }else if (gamepad1.a){
+
+        }else {
+            intake.setIntakePower(gamepad1.right_trigger-gamepad1.left_trigger);
+        }
+        if (gamepad1.dpadUpWasPressed())feedAndShoot.distanceOffset += 50;
+        if(gamepad1.dpadDownWasReleased()) feedAndShoot.distanceOffset -= 50;
+
         shooter.periodic();
         drivebase.periodic();
         telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
@@ -40,6 +49,7 @@ public class FeedAndShootTest extends OpMode {
         telemetry.addData("Target Velocity", shooter.targetVelocity);
         telemetry.addData("pose", drivebase.getPose().toString());
         telemetry.addData("scoring pose", scoringGoal.getPose().toString());
+        telemetry.addData("Scoring Goal", scoringGoal.toString());
 
         telemetry.update();
     }

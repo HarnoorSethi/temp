@@ -16,7 +16,6 @@ public class Drivebase extends SubsystemBase {
     private double powerMultiplier = 1;
     private ElapsedTime angularVelTimer;
     private double lastHeading;
-    double currentHeading = Math.PI/2;
 
     public double distanceOffset = 0;
 
@@ -32,7 +31,7 @@ public class Drivebase extends SubsystemBase {
     public void periodic(){
 
         follower.update();
-        currentHeading = follower.getHeading();
+
     }
 
     public void setStartingPose(Pose pose) {

@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
 @Configurable
 public class autoAlign extends CommandBase {
+    public boolean alignOn = false;
     Drivebase drivebase;
     ScoringGoal scoringGoal;
     PIDController rotateController;
@@ -28,10 +29,18 @@ public class autoAlign extends CommandBase {
 
     @Override
     public void execute(){
+
+        if (alignOn){
         currentHeading = drivebase.getPose().getHeading();
-        targetHeading = Math.PI + Math.atan2(scoringGoal.getPose().getY() - drivebase.getPose().getY(), scoringGoal.getPose().getX() - drivebase.getPose().getX());
+        //if (currentHeading < 0) currentHeading += 2 * Math.PI;
+        targetHeading = Math.atan2(scoringGoal.getPose().getY() - drivebase.getPose().getY(), scoringGoal.getPose().getX() - drivebase.getPose().getX());
+        if(targetHeading < 0) targetHeading += 2 * Math.PI;
         rotationPower = rotateController.calculate(currentHeading,targetHeading);
-        drivebase.setMovementVectors(0,0, rotationPower);
+       // drivebase.setMovementVectors(0,0, rotationPower);
+        }
+
+
+
     }
     @Override
     public boolean isFinished(){
