@@ -74,11 +74,15 @@ public class s extends CommandOpMode {
         // DRIVE (manual unless auto-align is on)
         drivebase.setDefaultCommand(
                 new RunCommand(() -> {
-                    if (!autoAlign.alignOn) {
+
+                    if (autoAlign.alignOn){
+                        drivebase.alignDrive(-gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x);
+                    }else {
                         drivebase.setMovementVectors(
                                 -gamepad1.left_stick_y,
                                 -gamepad1.left_stick_x,
-                                gamepad1.right_stick_x
+                                -gamepad1.right_stick_x
                         );
                     }
                 }, drivebase)
@@ -102,21 +106,24 @@ public class s extends CommandOpMode {
         // ================= BUTTON BINDINGS =================
 
         // Toggle firing
-        new GamepadButton(operator, GamepadKeys.Button.A)
-                .whenPressed(new InstantCommand(() -> {
-                    autoAlign.alignOn = !autoAlign.alignOn;
-                    drivebase.setMovementVectors(0, 0, 0);
-                    if(autoAlign.isFinished()){
-                        new InstantCommand(feedAndShoot::toggleFire);
-                    }
-        }));
-
-        // Toggle auto-align
         new GamepadButton(operator, GamepadKeys.Button.B)
                 .whenPressed(new InstantCommand(() -> {
                     autoAlign.alignOn = !autoAlign.alignOn;
-                    drivebase.setMovementVectors(0, 0, 0);
-                }));
+                    drivebase.setMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, 0);
+        }));
+
+        // Toggle auto-align
+        new GamepadButton(driver, GamepadKeys.Button.A)
+                .whenPressed(new InstantCommand(() -> {
+                   feedAndShoot.toggleFire();
+                }))
+                .whenReleased(new InstantCommand(() -> {
+                    feedAndShoot.toggleFire();
+                    autoAlign.alignOn = feedAndShoot.fire;
+                }))
+                .whenPressed(() -> {
+                    autoAlign.alignOn = feedAndShoot.fire;
+                });
     }
 
     @Override
@@ -155,6 +162,8 @@ public class s extends CommandOpMode {
         telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
         telemetry.addData("Shooter Velocity", shooter.currentVelocity);
         telemetry.addData("Shooter Target", shooter.targetVelocity);
+        //telemetry.addData("InDeadzone", autoAlign.inDeadzone);
+        telemetry.addData("Offset", autoAlign.llOffset);
         telemetry.update();
     }
 }

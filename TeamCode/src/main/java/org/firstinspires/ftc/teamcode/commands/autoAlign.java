@@ -28,15 +28,16 @@ public class autoAlign extends CommandBase {
     public static double ki = 0.0;
     public static double kd = 0.015;
 
-    public static double maxPower = 0.6;
-    public static double minPower = 0.07;
-    public static double deadbandDeg = 0;
+    public static double maxPower = 1;
+    public static double minPower = 0.00;
+    public static double deadbandDeg = 2;
 
     // ===== STATE =====
     public boolean alignOn = false;
     public double llOffset = LL_INVALID;
     public double angleOffset = 0;
     public double error;
+
 
     private final ElapsedTime llTimer = new ElapsedTime();
 
@@ -47,6 +48,8 @@ public class autoAlign extends CommandBase {
 
         pid = new PIDController(kp, ki, kd);
         llTimer.reset();
+
+        pid.setTolerance(Math.toRadians(3));
     }
 
     @Override
@@ -59,15 +62,18 @@ public class autoAlign extends CommandBase {
         LLResult result = ll.getLatestResult();
 
         if (result != null && result.isValid()
-                && !result.getFiducialResults().isEmpty()) {
+                && !result.getFiducialResults().isEmpty() && result.getFiducialResults().get(0).getFiducialId() == scoringGoal.getAprilTagId()) {
 
             llOffset = Math.toRadians(
                     result.getFiducialResults().get(0).getTargetXDegrees()
-            ) * 3;
+            ) * 1;
             llTimer.reset();
+
+            pid.setPID(kp,ki,kd);
 
         } else if (llTimer.seconds() > 0.1) {
             llOffset = LL_INVALID;
+            pid.setPID(1,0, 0.1);
         }
 
         // ================= POSE HEADING =================
@@ -88,35 +94,20 @@ public class autoAlign extends CommandBase {
             error = llOffset;
         }
 
-        // ================= DEADZONE =================
-        if (Math.abs(Math.toDegrees(error)) < deadbandDeg) {
-            drivebase.setMovementVectors(0, 0, 0);
-            pid.reset();
-            return;
-        }
+
+
 
         // ================= PID =================
         double output = pid.calculate(error);
 
         output = clamp(output, -maxPower, maxPower);
 
-        // Static friction compensation
-        if (Math.abs(output) < minPower) {
-            output = Math.copySign(minPower, output);
-        }
 
-        drivebase.setMovementVectors(0, 0, output);
+
+        drivebase.alignRotate = output;
     }
 
-    @Override
-    public boolean isFinished() {
-        if (Math.abs(Math.toDegrees(error)) < deadbandDeg) {
-            drivebase.setMovementVectors(0, 0, 0);
-            pid.reset();
-            return true;
-        }
-        else return false;
-    }
+
 
     // ================= HELPERS =================
 

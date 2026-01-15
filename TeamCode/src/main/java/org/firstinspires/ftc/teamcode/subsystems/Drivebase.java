@@ -19,6 +19,9 @@ public class Drivebase extends SubsystemBase {
 
     public double distanceOffset = 0;
 
+    public double alignRotate = 0;
+
+
 
 
     public boolean isInBrakeMode = false;
@@ -32,6 +35,10 @@ public class Drivebase extends SubsystemBase {
 
         follower.update();
 
+    }
+
+    public void alignDrive(double forward, double lateral){
+        follower.setTeleOpDrive(forward,1.2* lateral, alignRotate, true);
     }
 
     public void setStartingPose(Pose pose) {
