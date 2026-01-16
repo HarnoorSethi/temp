@@ -17,6 +17,8 @@ public final class distanceLUT {
         rpmLUT.add(110,  2750);
         rpmLUT.add(122.9, 2900);
         rpmLUT.add(132, 3050);// clamp high
+        rpmLUT.add(200, 3050);// clamp high
+
         rpmLUT.createLUT();
     }
 

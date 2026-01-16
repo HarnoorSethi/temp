@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
-@TeleOp(name = "TeleOp Blue (AutoAlign + Shoot)")
-public class s extends CommandOpMode {
+@TeleOp(name = "TeleOpRed")
+public class TeleOpRed extends CommandOpMode {
 
     // Subsystems
     private Drivebase drivebase;
@@ -36,7 +36,7 @@ public class s extends CommandOpMode {
     // Vision
     private Limelight3A ll;
 
-    private final ScoringGoal scoringGoal = ScoringGoal.BLUE;
+    private final ScoringGoal scoringGoal = ScoringGoal.RED;
 
     @Override
     public void initialize() {
@@ -104,24 +104,18 @@ public class s extends CommandOpMode {
         );
 
         // ================= BUTTON BINDINGS =================
-        new GamepadButton(operator, GamepadKeys.Button.X)
-                .whenPressed(() -> {
-                    autoAlign.alignOn = !autoAlign.alignOn;
-                    autoAlign.snap = !autoAlign.snap;
-                    feedAndShoot.distanceOffset = 94 - feedAndShoot.distance;
-                });
 
         // Toggle firing
         new GamepadButton(operator, GamepadKeys.Button.B)
                 .whenPressed(new InstantCommand(() -> {
                     autoAlign.alignOn = !autoAlign.alignOn;
                     drivebase.setMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, 0);
-        }));
+                }));
 
         // Toggle auto-align
         new GamepadButton(driver, GamepadKeys.Button.A)
                 .whenPressed(new InstantCommand(() -> {
-                   feedAndShoot.toggleFire();
+                    feedAndShoot.toggleFire();
                 }))
                 .whenReleased(new InstantCommand(() -> {
                     feedAndShoot.toggleFire();
@@ -130,6 +124,15 @@ public class s extends CommandOpMode {
                 .whenPressed(() -> {
                     autoAlign.alignOn = feedAndShoot.fire;
                 });
+
+
+        new GamepadButton(operator, GamepadKeys.Button.X)
+                .whenPressed(() -> {
+                    autoAlign.alignOn = !autoAlign.alignOn;
+                    autoAlign.snap = !autoAlign.snap;
+                    feedAndShoot.distanceOffset = 94 - feedAndShoot.distance;
+                });
+
     }
 
     @Override
@@ -154,8 +157,8 @@ public class s extends CommandOpMode {
         );
         if (gamepad2.dpadUpWasPressed())feedAndShoot.distanceOffset += 5;
         if(gamepad2.dpadDownWasPressed()) feedAndShoot.distanceOffset -= 5;
-        if (gamepad2.dpadLeftWasPressed())autoAlign.angleOffset += 2.5;
-        if(gamepad2.dpadRightWasPressed()) autoAlign.angleOffset -= 2.5;
+        if (gamepad2.dpadLeftWasPressed())autoAlign.angleOffset += Math.toRadians(2.5);
+        if(gamepad2.dpadRightWasPressed()) autoAlign.angleOffset -= Math.toRadians(2.5);
 
         // ================= TELEMETRY =================
         telemetry.addData("AutoAlign", autoAlign.alignOn);
@@ -168,7 +171,6 @@ public class s extends CommandOpMode {
         telemetry.addData("Distance", drivebase.getPose().distanceFrom(scoringGoal.getPose()));
         telemetry.addData("Shooter Velocity", shooter.currentVelocity);
         telemetry.addData("Shooter Target", shooter.targetVelocity);
-        //telemetry.addData("InDeadzone", autoAlign.inDeadzone);
         telemetry.addData("Offset", autoAlign.llOffset);
         telemetry.update();
     }
