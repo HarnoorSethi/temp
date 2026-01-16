@@ -1,172 +1,195 @@
-
 package org.firstinspires.ftc.teamcode.Auto;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.*;
+import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.TelemetryManager;
-import com.bylazar.telemetry.PanelsTelemetry;
 
 import org.firstinspires.ftc.teamcode.commands.FeedAndShoot;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Drivebase;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.subsystems.*;
 import org.firstinspires.ftc.teamcode.util.ScoringGoal;
-@Autonomous(name = "Pedro Pathing Autonomous", group = "Autonomous")
-@Configurable // Panels
+
+@Autonomous(name = "Blue Six Close (FSM)", group = "Autonomous")
 public class BlueSixClose extends CommandOpMode {
-    private TelemetryManager panelsTelemetry; // Panels Telemetry instance
-    public Drivebase db; // Pedro Pathing follower instance
-    private int pathState; // Current autonomous path state (state machine)
-    private Paths paths; // Paths defined in the Paths class
-    private Shooter shooter;
+
+    // ================= FSM =================
+    private enum PathState {
+        PRELOAD, WAIT_PRELOAD, FIRE_PRELOAD,
+        GO_BALLS, GO_INTAKE,
+        GO_SHOOT, WAIT_SHOOT, FIRE_SHOOT,
+        LEAVE
+    }
+
+    private PathState pathState;
+
+    // ================= Subsystems =================
+    private Drivebase drivebase;
     private Intake intake;
-    private final ScoringGoal scoringGoal = ScoringGoal.BLUE;
-    private FeedAndShoot feedAndShoot;
+    private Shooter shooter;
+
+    // ================= Commands =================
+    private FeedAndShoot autoShoot;
+
+    // ================= Utils =================
+    private Timer timer;
+
+    private final Pose startPose = new Pose(72, 8, Math.toRadians(90));
+    private final ScoringGoal goal = ScoringGoal.BLUE;
 
     @Override
     public void initialize() {
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        shooter = new Shooter(hardwareMap,telemetry);
+
+        drivebase = new Drivebase(hardwareMap);
         intake = new Intake(hardwareMap);
-        feedAndShoot = new FeedAndShoot(shooter,intake);
+        shooter = new Shooter(hardwareMap, telemetry);
 
-        db = new Drivebase(hardwareMap);
-        db.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
+        register(drivebase, intake, shooter);
 
-        paths = new Paths(db.follower); // Build paths
+        autoShoot = new FeedAndShoot(shooter, intake);
+        autoShoot.fire = false;
+        autoShoot.schedule(); // runs continuously like the other team's autoShoot
 
-        panelsTelemetry.debug("Status", "Initialized");
-        panelsTelemetry.update(telemetry);
+        drivebase.setStartingPose(startPose);
+
+        Paths.init(drivebase.follower);
+
+        timer = new Timer();
+        pathState = PathState.PRELOAD;
     }
 
     @Override
-    public void run() {
-        db.follower.update(); // Update Pedro Pathing
-        autonomousPathUpdate();
-        feedAndShoot.updateFeedAndShootDistance(db.getPose().distanceFrom(scoringGoal.getPose()));
+    public void runOpMode() throws InterruptedException {
+        initialize();
+        waitForStart();
+        timer.resetTimer();
 
-        // Log values to Panels and Driver Station
-        panelsTelemetry.debug("Path State", pathState);
-        panelsTelemetry.debug("X", db.getPose().getX());
-        panelsTelemetry.debug("Y", db.getPose().getY());
-        panelsTelemetry.debug("Heading", db.getPose().getHeading());
-        panelsTelemetry.update(telemetry);
-    }
+        while (opModeIsActive() && !isStopRequested()) {
 
 
-    public static class Paths {
-        public PathChain ShootPreload;
-        public PathChain GotToBalls;
-        public PathChain IntakeBalls;
-        public PathChain ShootFirstSpikeMark;
-        public PathChain Leave;
+            autoShoot.updateFeedAndShootDistance(
+                    drivebase.getPose().distanceFrom(goal.getPose())
+            );
 
-        public Paths(Follower follower) {
-            ShootPreload = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(23.453, 120.589),
-
-                                    new Pose(62.434, 83.685)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
-
-                    .build();
-
-            GotToBalls = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(62.434, 83.685),
-
-                                    new Pose(38.903, 84.025)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
-
-                    .build();
-
-            IntakeBalls = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(38.903, 84.025),
-
-                                    new Pose(15.556, 83.778)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-
-                    .build();
-
-            ShootFirstSpikeMark = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(15.556, 83.778),
-
-                                    new Pose(62.159, 83.833)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
-
-                    .build();
-
-            Leave = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(62.159, 83.833),
-
-                                    new Pose(25.234, 73.545)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(90))
-
-                    .build();
+            updateFSM();
         }
     }
 
-
-    public void autonomousPathUpdate() {
+    // ================= FSM LOGIC =================
+    private void updateFSM() {
         switch (pathState) {
 
-            case 0:
-                // Shoot preload
-                db.followPath(paths.ShootPreload);
-                pathState++;
+            case PRELOAD:
+                drivebase.followPath(Paths.shootPreload);
+                pathState = PathState.WAIT_PRELOAD;
                 break;
 
-            case 1:
-                if (!db.follower.isBusy()) {
-                    feedAndShoot.toggleFire();
-
-                    db.followPath(paths.GotToBalls);
-                    pathState++;
+            case WAIT_PRELOAD:
+                if (!drivebase.follower.isBusy()) {
+                    timer.resetTimer();
+                    pathState = PathState.FIRE_PRELOAD;
                 }
                 break;
 
-            case 2:
-                if (!db.follower.isBusy()) {
-                    db.followPath(paths.IntakeBalls);
-                    pathState++;
+            case FIRE_PRELOAD:
+                if (timer.getElapsedTimeSeconds() > 0.4)
+                    autoShoot.fire = true;
+
+                if (timer.getElapsedTimeSeconds() > 2) {
+                    autoShoot.fire = false;
+                    drivebase.followPath(Paths.goToBalls);
+                    pathState = PathState.GO_BALLS;
                 }
                 break;
 
-            case 3:
-                if (!db.follower.isBusy()) {
-                    db.followPath(paths.ShootFirstSpikeMark);
-                    pathState++;
+            case GO_BALLS:
+                if (!drivebase.follower.isBusy()) {
+                    intake.setIntakePower(1);
+
+                    drivebase.followPath(Paths.intakeBalls);
+                    pathState = PathState.GO_INTAKE;
                 }
                 break;
 
-            case 4:
-                if (!db.follower.isBusy()) {
-                    db.followPath(paths.Leave);
-                    pathState++;
+            case GO_INTAKE:
+                if (!drivebase.follower.isBusy()) {
+                    drivebase.followPath(Paths.shootSpike);
+                    pathState = PathState.GO_SHOOT;
+                    intake.setIntakePower(0);
+
                 }
                 break;
 
-            case 5:
-                // Autonomous finished
-                // You can stop updating paths here or add parking logic
+            case GO_SHOOT:
+                if (!drivebase.follower.isBusy()) {
+                    timer.resetTimer();
+                    pathState = PathState.WAIT_SHOOT;
+                }
+                break;
+
+            case WAIT_SHOOT:
+                if (timer.getElapsedTimeSeconds() > 0.4) {
+                    autoShoot.fire = true;
+                    timer.resetTimer();
+                    pathState = PathState.FIRE_SHOOT;
+                }
+                break;
+
+            case FIRE_SHOOT:
+                if (timer.getElapsedTimeSeconds() > 2) {
+                    autoShoot.fire = false;
+                    drivebase.followPath(Paths.leave);
+                    pathState = PathState.LEAVE;
+                }
+                break;
+
+            case LEAVE:
+                intake.setIntakePower(0);
                 break;
         }
     }
 
+    // ================= PATH BANK =================
+    public static class Paths {
+        public static PathChain shootPreload, goToBalls, intakeBalls, shootSpike, leave;
+
+        public static void init(Follower follower) {
+
+            shootPreload = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(23.453, 120.589),
+                                    new Pose(62.434, 83.685)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .build();
+
+            goToBalls = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(62.434, 83.685),
+                                    new Pose(38.903, 84.025)))
+                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                    .build();
+
+            intakeBalls = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(38.903, 84.025),
+                                    new Pose(15.556, 83.778)))
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .build();
+
+            shootSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(15.556, 83.778),
+                                    new Pose(62.159, 83.833)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .build();
+
+            leave = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(62.159, 83.833),
+                                    new Pose(25.234, 73.545)))
+                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(90))
+                    .build();
+        }
+    }
 }
-    
