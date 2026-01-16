@@ -55,6 +55,9 @@ public class autoAlign extends CommandBase {
     @Override
     public void execute() {
         if (!alignOn) return;
+        if(drivebase.getPose().getY() < 75)
+            angleOffset = 5;
+        else angleOffset = 0;
 
         pid.setPID(kp, ki, kd);
 
@@ -65,7 +68,7 @@ public class autoAlign extends CommandBase {
                 && !result.getFiducialResults().isEmpty() && result.getFiducialResults().get(0).getFiducialId() == scoringGoal.getAprilTagId()) {
 
             llOffset = Math.toRadians(
-                    result.getFiducialResults().get(0).getTargetXDegrees()
+                    result.getFiducialResults().get(0).getTargetXDegrees() + angleOffset
             ) * 1;
             llTimer.reset();
 
