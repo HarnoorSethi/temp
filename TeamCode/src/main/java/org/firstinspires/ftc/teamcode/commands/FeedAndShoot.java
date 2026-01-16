@@ -51,11 +51,11 @@ public class FeedAndShoot extends CommandBase {
         rpmLUT.add(92.2,  2450);
         rpmLUT.add(100.6,  2600);
         rpmLUT.add(102.4,  2700);
-        rpmLUT.add(110.6, 1700);
+        rpmLUT.add(110.6, 2700);
         rpmLUT.add(121.9, 2950);
         rpmLUT.add(122.5, 3000);
-        rpmLUT.add(133.4, 3000);
-        rpmLUT.add(140.8, 3150);// clamp high
+        rpmLUT.add(133.4, 3100);
+        rpmLUT.add(140.8, 3250);// clamp high
         rpmLUT.createLUT();
 
         this.intake = intake;
