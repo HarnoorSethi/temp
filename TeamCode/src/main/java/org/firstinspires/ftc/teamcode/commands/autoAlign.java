@@ -28,9 +28,15 @@ public class autoAlign extends CommandBase {
     public static double ki = 0.0;
     public static double kd = 0.015;
 
+<<<<<<< HEAD
     public static double maxPower = 1;
     public static double minPower = 0.00;
     public static double deadbandDeg = 2;
+=======
+    public static double maxPower = 0.6;
+    public static double minPower = 0.07;
+    public static double deadbandDeg = 1;
+>>>>>>> dd7df49 (help)
 
     // ===== STATE =====
     public boolean alignOn = false;
