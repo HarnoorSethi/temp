@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
     public double smoothedAcceleration = 0.0;
 
 
-    public static double kP = 0.0008;
+    public static double kP = 0.0007;
     public static double kI = 0.0006;
     public static double kD = 0.0;
 

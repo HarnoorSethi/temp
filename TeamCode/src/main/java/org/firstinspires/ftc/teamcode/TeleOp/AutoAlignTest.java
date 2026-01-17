@@ -56,10 +56,11 @@ public class AutoAlignTest extends OpMode {
         }
 
         telemetry.addData("AutoAlign", align.alignOn);
-        telemetry.addData("LL Offset (deg)",
-                align.llOffset == autoAlign.LL_INVALID
-                        ? "INVALID"
-                        : Math.toDegrees(align.llOffset));
+       // telemetry.addData("LL Offset (deg)",
+               // align.llOffset == autoAlign.LL_INVALID
+                        //? "INVALID"
+                        //: Math.toDegrees(align.llOffset));
+
         telemetry.update();
     }
 }

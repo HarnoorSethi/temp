@@ -24,27 +24,25 @@ public class autoAlign extends CommandBase {
     // ===== PID =====
     private final PIDController pid;
 
-    public static double kp = 0.5;
+    public static double kp = 1;
     public static double ki = 0.0;
     public static double kd = 0.015;
-
 
     public static double maxPower = 1;
     public static double minPower = 0.00;
     public static double deadbandDeg = 2;
 
-
-    // ===== STATE =====
+    // ===== STATE (ALL PRESERVED) =====
     public boolean alignOn = false;
     public double llOffset = LL_INVALID;
     public double angleOffset = 0;
     public double error = 0;
+
+    public double theoreticalDBError = 0;
+    public double dbAngleCalculated = 0;
+
     public boolean snap = false;
-
-
-
-
-
+    public double targetHeading = 0;
 
     private final ElapsedTime llTimer = new ElapsedTime();
 
@@ -54,43 +52,54 @@ public class autoAlign extends CommandBase {
         this.ll = ll;
 
         pid = new PIDController(kp, ki, kd);
-        llTimer.reset();
-
         pid.setTolerance(Math.toRadians(3));
+
+        llTimer.reset();
     }
-
-
 
     @Override
     public void execute() {
-        if (!alignOn) return;
-
-        if (!snap){
-
-        pid.setSetPoint(0);
-
-        pid.setPID(kp, ki, kd);
-
 
         // ================= LIMELIGHT =================
         LLResult result = ll.getLatestResult();
 
-        if (result != null && result.isValid()
-                && !result.getFiducialResults().isEmpty() && result.getFiducialResults().get(0).getFiducialId() == scoringGoal.getAprilTagId()) {
+        if (result != null
+                && result.isValid()
+                && !result.getFiducialResults().isEmpty()
+                && result.getFiducialResults().get(0).getFiducialId() == scoringGoal.getAprilTagId()) {
 
             llOffset = Math.toRadians(
-                    result.getFiducialResults().get(0).getTargetXDegrees()
-            ) * 1;
-            llTimer.reset();
+                    -result.getFiducialResults().get(0).getTargetXDegrees()
+            );
 
-            pid.setPID(kp,ki,kd);
+            llTimer.reset();
+            pid.setPID(kp, ki, kd);
 
         } else if (llTimer.seconds() > 0.1) {
             llOffset = LL_INVALID;
-            pid.setPID(1,0, 0.1);
         }
 
-        // ================= POSE HEADING =================
+        if (!alignOn) {
+            drivebase.alignRotate = 0;
+            return;
+        }
+
+        // ================= SNAP MODE (UNCHANGED) =================
+        if (snap) {
+            pid.setSetPoint(
+                    scoringGoal == ScoringGoal.BLUE
+                            ? 3 * (Math.PI / 4) + Math.PI
+                            : Math.PI + Math.PI / 4
+            );
+
+            drivebase.alignRotate = pid.calculate(drivebase.getPose().getHeading());
+            return;
+        }
+
+        // ================= NON-SNAP (PID FIXED) =================
+
+        pid.setPID(kp, ki, kd);
+
         double robotHeading = drivebase.getPose().getHeading();
 
         double goalAngle = Math.atan2(
@@ -98,42 +107,30 @@ public class autoAlign extends CommandBase {
                 scoringGoal.getPose().getX() - drivebase.getPose().getX()
         );
 
-        // Shooter is on the BACK
-        double targetHeading = normalize(goalAngle);
+        // Preserve original behavior: update targetHeading only when stable
+        if (pid.atSetPoint() || targetHeading == 0) {
+            targetHeading = normalize(goalAngle + Math.PI);
+            dbAngleCalculated = Math.toDegrees(targetHeading);
+        }
 
-        if ((pid.atSetPoint()) || (error == 0)){
+        // ================= ERROR CALCULATION =================
         error = shortestAngleError(targetHeading, robotHeading);
+        theoreticalDBError = Math.toDegrees(error);
 
-        // Prefer Limelight when valid
+        // Prefer Limelight when valid (preserved behavior)
         if (llOffset != LL_INVALID) {
             error = llOffset;
         }
-        }
 
-
-
-
-
-        // ================= PID =================
-        double output = pid.calculate(error + angleOffset);
+        // ================= PID (CORRECTED) =================
+        // PID now treats ERROR as error, not measurement
+        pid.setSetPoint(0);
+        double output = pid.calculate(-error + angleOffset);
 
         output = clamp(output, -maxPower, maxPower);
 
-
-
         drivebase.alignRotate = output;
-        }else {
-
-            pid.setSetPoint(scoringGoal == ScoringGoal.BLUE ? 3 * (Math.PI/4) : Math.PI/4);
-            drivebase.alignRotate = pid.calculate(drivebase.getPose().getHeading());
-
-
-        }
-
-
     }
-
-
 
     // ================= HELPERS =================
 

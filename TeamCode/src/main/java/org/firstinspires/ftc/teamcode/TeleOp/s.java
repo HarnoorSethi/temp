@@ -119,17 +119,16 @@ public class s extends CommandOpMode {
         }));
 
         // Toggle auto-align
-        new GamepadButton(driver, GamepadKeys.Button.A)
+        new GamepadButton(operator, GamepadKeys.Button.A)
                 .whenPressed(new InstantCommand(() -> {
                    feedAndShoot.toggleFire();
                 }))
                 .whenReleased(new InstantCommand(() -> {
                     feedAndShoot.toggleFire();
-                    autoAlign.alignOn = feedAndShoot.fire;
-                }))
-                .whenPressed(() -> {
-                    autoAlign.alignOn = feedAndShoot.fire;
-                });
+                    autoAlign.alignOn = false;
+
+                }));
+
     }
 
     @Override
@@ -158,6 +157,7 @@ public class s extends CommandOpMode {
         if(gamepad2.dpadRightWasPressed()) autoAlign.angleOffset -= 2.5;
 
         // ================= TELEMETRY =================
+        telemetry.addData("error", autoAlign.error);
         telemetry.addData("AutoAlign", autoAlign.alignOn);
         telemetry.addData(
                 "LL Offset (deg)",
