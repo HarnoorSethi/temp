@@ -55,7 +55,7 @@ public class RedSixFar extends CommandOpMode {
     private Timer timer, fullTime;
     private Limelight3A ll;
 
-    private final Pose startPose = new Pose(56.000, 8.000, Math.toRadians(90));
+    private final Pose startPose = new Pose(88.000, 8.000, Math.toRadians(90));
     private final ScoringGoal goal = ScoringGoal.BLUE;
 
     @Override
@@ -259,7 +259,7 @@ public class RedSixFar extends CommandOpMode {
                             new Pose(55.821, 20.757).mirror()))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(180-90),
-                            Math.toRadians(180-287))
+                            Math.toRadians(180-282))
                     .build();
 
             GoToCorner = follower.pathBuilder()
@@ -300,7 +300,7 @@ public class RedSixFar extends CommandOpMode {
                             new Pose(55.899, 20.788).mirror()))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(180 - 180),
-                            Math.toRadians(180 - 295))
+                            Math.toRadians(180 - 29))
                     .build();
 
             Leave = follower.pathBuilder()
