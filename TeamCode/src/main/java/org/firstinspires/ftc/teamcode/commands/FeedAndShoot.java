@@ -27,7 +27,7 @@ public class FeedAndShoot extends CommandBase {
 
     public boolean fire = false;
 
-    public double distance = 130;
+    public double distance = 200;
     public boolean rapidFire = false;
     public double distanceOffset = 0;
 
@@ -79,8 +79,8 @@ public class FeedAndShoot extends CommandBase {
     public void execute() {
         double llTargetHeadingOffset = 0;
 
- //shooter.setTargetVelocity(distanceOffset);
-         shooter.setTargetVelocity(rpmLUT.get(distance));
+        //shooter.setTargetVelocity(distanceOffset);
+        shooter.setTargetVelocity(rpmLUT.get(distance));
 
 
         if (fire && shooter.isReadyToShoot()) {

@@ -207,6 +207,8 @@ public class BlueSixClose extends CommandOpMode {
 
             case LEAVE:
                 intake.setIntakePower(0);
+                autoShoot.cancel();
+                saveFinalPose(drivebase.getPose());
                 break;
         }
     }

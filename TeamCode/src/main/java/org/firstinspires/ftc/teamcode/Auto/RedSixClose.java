@@ -98,6 +98,7 @@ public class RedSixClose extends CommandOpMode {
                     )
             );
             drivebase.follower.update();
+            drivebase.distanceOffset = 10;
             run();
             autoShoot.execute();
 
@@ -209,6 +210,8 @@ public class RedSixClose extends CommandOpMode {
 
             case LEAVE:
                 intake.setIntakePower(0);
+                autoShoot.cancel();
+                saveFinalPose(drivebase.getPose());
                 break;
         }
     }
@@ -222,13 +225,13 @@ public class RedSixClose extends CommandOpMode {
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(23.453, 120.589).mirror(),
-                                    new Pose(62.434, 83.685).mirror()))
+                                    new Pose(66, 90).mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (135 + 180)))
                     .build();
 
             goToBalls = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(62.434, 83.685).mirror(),
+                                    new Pose(66, 90).mirror(),
                                     new Pose(55.903, 86.025).mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - (135 + 180)), Math.toRadians(180 - 180))
                     .build();
@@ -243,7 +246,7 @@ public class RedSixClose extends CommandOpMode {
             shootSpike = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(22.556, 83.778).mirror(),
-                                    new Pose(62.159, 83.833).mirror()))
+                                    new Pose(66.159, 90.833).mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (135 + 180)))
                     .build();
 
