@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
     public double smoothedAcceleration = 0.0;
 
 
-    public static double kP = 0.0007;
+    public static double kP = 0.0008;
     public static double kI = 0.0006;
     public static double kD = 0.0;
 
@@ -122,18 +122,8 @@ public class Shooter extends SubsystemBase {
         double updateInterval = 0.01;
         if (pollTimer.milliseconds() >= (updateInterval * 1000)) {
 
-            int currentPos = shooter1.getCurrentPosition();
-            double dTicks = currentPos - lastEncoderPos;
-            lastEncoderPos = currentPos;
-            double timeDelta = pollTimer.milliseconds() / 1000.0;
-            double ticksPerSecond = dTicks / timeDelta;
-            double flywheelVelocity = 60 * (ticksPerSecond/28.0) * (19.0/19.0);
-            velocityHistory.remove(0);
-            velocityHistory.add(flywheelVelocity);
 
-            double avg = 0;
-            for (double v : velocityHistory) avg += v;
-            currentVelocity = avg / velocityHistory.size();
+            currentVelocity = -shooter2.getCorrectedVelocity() * (60.0/28.0);
 
 
 

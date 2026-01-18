@@ -44,19 +44,16 @@ public class FeedAndShoot extends CommandBase {
         this.rpmLUT = new InterpLUT();
 
 
-        rpmLUT.add(0,     2000);   // clamp low
-        rpmLUT.add(61.5,  2200);
-        rpmLUT.add(72.4,  2350);
-        rpmLUT.add(81.5,  2450);
-        rpmLUT.add(92.2,  2450);
-        rpmLUT.add(100.6,  2600);
-        rpmLUT.add(102.4,  2700);
-        rpmLUT.add(110.6, 2700);
-        rpmLUT.add(121.9, 2950);
-        rpmLUT.add(122.5, 3000);
-        rpmLUT.add(133.4, 3100);
-        rpmLUT.add(140.8, 3250);// clamp high
+        rpmLUT.add(0,     2333);   // clamp low
+        rpmLUT.add(41,  2333);
+        rpmLUT.add(65,  2468);
+        rpmLUT.add(85,  2739);
+        rpmLUT.add(106,  3086);
+        rpmLUT.add(140,  3500);
+        rpmLUT.add(200,  3500);
         rpmLUT.createLUT();
+
+        this.intake = intake;
 
         this.intake = intake;
 
@@ -82,22 +79,17 @@ public class FeedAndShoot extends CommandBase {
     public void execute() {
         double llTargetHeadingOffset = 0;
 
-        shooter.setTargetVelocity(rpmLUT.get(distance));
+ //shooter.setTargetVelocity(distanceOffset);
+         shooter.setTargetVelocity(rpmLUT.get(distance));
 
 
-        if (fire && !rapidFire) {
-
-            rapidFire = true;
-        }
-        if (rapidFire){
-
+        if (fire && shooter.isReadyToShoot()) {
             shooter.feed();
             intake.setIntakePower(1);
 
-        }else {
+
+        }else{
             shooter.reverseFeed();
-
-
         }
         if (shooter.velocityPID.getPositionError() > 160){
             shooter.velocityPID.setPID(0.0024 * 3, 0.002 * 2, 0);
