@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.io.File;
 
-@Autonomous(name = "Blue Back Auto (FSM)", group = "Autonomous")
-public class BlueSixFar extends CommandOpMode {
+@Autonomous(name = "Red Six Far (FSM)", group = "Autonomous")
+public class RedSixFar extends CommandOpMode {
 
     // ================= FSM =================
     private enum PathState {
@@ -151,7 +151,7 @@ public class BlueSixFar extends CommandOpMode {
                 if (!drivebase.follower.isBusy()) {
                     timer.resetTimer();
                     if (shooter.isReadyToShoot()){
-                    pathState = PathState.FIRE_PRELOAD;}
+                        pathState = PathState.FIRE_PRELOAD;}
                 }
                 break;
 
@@ -198,13 +198,13 @@ public class BlueSixFar extends CommandOpMode {
                 break;
 
             case DriveForward:
-            if (!drivebase.follower.isBusy()) {
-                intake.setIntakePower(1);
-                drivebase.follower.setMaxPower(0.7);
-                drivebase.follower.followPath(Paths.ShootCorner);
-                pathState = PathState.GO_SHOOT;
-            }
-            break;
+                if (!drivebase.follower.isBusy()) {
+                    intake.setIntakePower(1);
+                    drivebase.follower.setMaxPower(0.7);
+                    drivebase.follower.followPath(Paths.ShootCorner);
+                    pathState = PathState.GO_SHOOT;
+                }
+                break;
 
             case GO_SHOOT:
                 if (!drivebase.follower.isBusy()) {
@@ -255,59 +255,59 @@ public class BlueSixFar extends CommandOpMode {
 
             preloadShoot = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(56.000, 8.000),
-                            new Pose(55.821, 20.757)))
+                            new Pose(56.000, 8.000).mirror(),
+                            new Pose(55.821, 20.757).mirror()))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(90),
-                            Math.toRadians(287))
+                            Math.toRadians(180-90),
+                            Math.toRadians(180-287))
                     .build();
 
             GoToCorner = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(55.821, 20.757),
-                            new Pose(10.963, 16.472)))
+                            new Pose(55.821, 20.757).mirror(),
+                            new Pose(10.963, 16.472).mirror()))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(295),
-                            Math.toRadians(210))
+                            Math.toRadians(180-295),
+                            Math.toRadians(180-210))
                     .build();
 
             IntakeCorner = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(10.963, 16.472),
-                            new Pose(9.184, 10.078)))
+                            new Pose(10.963, 16.472).mirror(),
+                            new Pose(9.184, 10.078).mirror()))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(210),
-                            Math.toRadians(180))
+                            Math.toRadians(180-210),
+                            Math.toRadians(180-180))
                     .build();
 
             ThirdBall = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(9.184, 10.078),
-                            new Pose(9.184, 15.078)))
-                    .setConstantHeadingInterpolation(150)
+                            new Pose(9.184, 10.078).mirror(),
+                            new Pose(9.184, 15.078).mirror()))
+                    .setConstantHeadingInterpolation(180 - 150)
                     .build();
 
             DriveForward = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(9.184, 15.078),
-                            new Pose(9.184, 13.078)))
-                    .setConstantHeadingInterpolation(270)
+                            new Pose(9.184, 15.078).mirror(),
+                            new Pose(9.184, 13.078).mirror()))
+                    .setConstantHeadingInterpolation(180 - 270)
                     .build();
 
             ShootCorner = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(11.184, 10.078),
-                            new Pose(55.899, 20.788)))
+                            new Pose(11.184, 10.078).mirror(),
+                            new Pose(55.899, 20.788).mirror()))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(180),
-                            Math.toRadians(295))
+                            Math.toRadians(180 - 180),
+                            Math.toRadians(180 - 295))
                     .build();
 
             Leave = follower.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(55.899, 20.788),
-                            new Pose(38.582, 17.902)))
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                            new Pose(55.899, 20.788).mirror(),
+                            new Pose(38.582, 17.902).mirror()))
+                    .setConstantHeadingInterpolation(Math.toRadians(0))
                     .build();
         }
     }

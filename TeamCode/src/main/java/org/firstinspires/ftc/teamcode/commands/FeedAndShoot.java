@@ -27,7 +27,7 @@ public class FeedAndShoot extends CommandBase {
 
     public boolean fire = false;
 
-    public double distance = 200;
+    public double distance = 130;
     public boolean rapidFire = false;
     public double distanceOffset = 0;
 

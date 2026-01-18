@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.io.File;
 
-@Autonomous(name = "Blue Six Close (FSM)", group = "Autonomous")
-public class BlueSixClose extends CommandOpMode {
+@Autonomous(name = "Red Six Close (FSM)", group = "Autonomous")
+public class RedSixClose extends CommandOpMode {
 
     // ================= FSM =================
     private enum PathState {
@@ -41,7 +41,7 @@ public class BlueSixClose extends CommandOpMode {
     // ================= Utils =================
     private Timer timer, fullTime;
 
-    private final Pose startPose = new Pose(23, 120, Math.toRadians(180));
+    private final Pose startPose = new Pose(23, 120, Math.toRadians(180)).mirror();
     private final ScoringGoal goal = ScoringGoal.BLUE;
 
     @Override
@@ -130,7 +130,7 @@ public class BlueSixClose extends CommandOpMode {
             ReadWriteFile.writeFile(poseFile, data);
 
         } catch (Exception e) {
-           telemetry.addData("hm", "no pose");
+            telemetry.addData("hm", "no pose");
         }
     }
 
@@ -146,7 +146,9 @@ public class BlueSixClose extends CommandOpMode {
             case WAIT_PRELOAD:
                 if (!drivebase.follower.isBusy()) {
                     timer.resetTimer();
+                    if (shooter.isReadyToShoot()){
                     pathState = PathState.FIRE_PRELOAD;
+                    }
                 }
                 break;
 
@@ -219,37 +221,37 @@ public class BlueSixClose extends CommandOpMode {
 
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.453, 120.589),
-                                    new Pose(62.434, 83.685)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135 + 180))
+                                    new Pose(23.453, 120.589).mirror(),
+                                    new Pose(62.434, 83.685).mirror()))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (135 + 180)))
                     .build();
 
             goToBalls = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(62.434, 83.685),
-                                    new Pose(55.903, 86.025)))
-                    .setLinearHeadingInterpolation(Math.toRadians(135 + 180), Math.toRadians(180))
+                                    new Pose(62.434, 83.685).mirror(),
+                                    new Pose(55.903, 86.025).mirror()))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - (135 + 180)), Math.toRadians(180 - 180))
                     .build();
 
             intakeBalls = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(55.903, 86.025),
-                                    new Pose(22.556, 83.778)))
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    new Pose(55.903, 86.025).mirror(),
+                                    new Pose(22.556, 83.778).mirror()))
+                    .setConstantHeadingInterpolation(Math.toRadians(180 - 180))
                     .build();
 
             shootSpike = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(22.556, 83.778),
-                                    new Pose(62.159, 83.833)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135 + 180))
+                                    new Pose(22.556, 83.778).mirror(),
+                                    new Pose(62.159, 83.833).mirror()))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (135 + 180)))
                     .build();
 
             leave = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(62.159, 83.833),
-                                    new Pose(40.234, 73.545)))
-                    .setLinearHeadingInterpolation(Math.toRadians(135 + 180), Math.toRadians(90 + 180))
+                                    new Pose(62.159, 83.833).mirror(),
+                                    new Pose(40.234, 73.545).mirror()))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - (135 + 180)), Math.toRadians(180 - (90 + 180)))
                     .build();
         }
     }
