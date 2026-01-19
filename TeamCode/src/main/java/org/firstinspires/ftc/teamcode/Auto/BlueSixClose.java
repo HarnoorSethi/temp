@@ -91,7 +91,7 @@ public class BlueSixClose extends CommandOpMode {
                     Math.max(
                             Math.min(
                                     drivebase.getPose().distanceFrom(goal.getPose())
-                                            + autoShoot.distanceOffset,
+                                            + autoShoot.distanceOffset + 5,
                                     130
                             ),
                             10

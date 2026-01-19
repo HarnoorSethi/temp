@@ -112,9 +112,7 @@ public class FINALBLUETELEOP extends CommandOpMode {
         // ================= BUTTON BINDINGS =================
         new GamepadButton(operator, GamepadKeys.Button.X)
                 .whenPressed(() -> {
-                    autoAlign.alignOn = !autoAlign.alignOn;
-                    autoAlign.snap = !autoAlign.snap;
-                    feedAndShoot.distanceOffset = 94 - feedAndShoot.distance;
+                    feedAndShoot.distanceOffset = 97 - feedAndShoot.distance;
                 });
 
         // Toggle firing
@@ -122,7 +120,14 @@ public class FINALBLUETELEOP extends CommandOpMode {
                 .whenPressed(new InstantCommand(() -> {
                     autoAlign.alignOn = !autoAlign.alignOn;
                     drivebase.setMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, 0);
-                }));
+                }))
+                .whenReleased(() -> {
+
+                    autoAlign.alignOn = !autoAlign.alignOn;
+                    drivebase.setMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, 0);
+                })
+
+        ;
 
         // Toggle auto-align
         new GamepadButton(operator, GamepadKeys.Button.A)

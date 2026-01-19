@@ -17,14 +17,18 @@ import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.io.File;
 
-@Autonomous(name = "Red Six Close (FSM)", group = "Autonomous")
-public class RedSixClose extends CommandOpMode {
+@Autonomous(name = "Red Nine Close (FSM)", group = "Autonomous")
+public class RedNineClose extends CommandOpMode {
 
     // ================= FSM =================
     private enum PathState {
         PRELOAD, WAIT_PRELOAD, FIRE_PRELOAD,
         GO_BALLS, GO_INTAKE,
         GO_SHOOT, WAIT_SHOOT, FIRE_SHOOT,
+        GO_BALLS2, GO_INTAKE2,
+
+        GO_SHOOT2, WAIT_SHOOT2, FIRE_SHOOT2,
+
         LEAVE
     }
 
@@ -92,14 +96,14 @@ public class RedSixClose extends CommandOpMode {
                     Math.max(
                             Math.min(
                                     drivebase.getPose().distanceFrom(goal.getPose())
-                                            + autoShoot.distanceOffset + 5,
+                                            + autoShoot.distanceOffset,
                                     130
                             ),
                             10
                     )
             );
             drivebase.follower.update();
-            drivebase.distanceOffset = 10;
+            drivebase.distanceOffset = 9;
             run();
             autoShoot.execute();
 
@@ -149,7 +153,7 @@ public class RedSixClose extends CommandOpMode {
                 if (!drivebase.follower.isBusy()) {
                     timer.resetTimer();
                     if (shooter.isReadyToShoot()){
-                    pathState = PathState.FIRE_PRELOAD;
+                        pathState = PathState.FIRE_PRELOAD;
                     }
                 }
                 break;
@@ -199,7 +203,54 @@ public class RedSixClose extends CommandOpMode {
                 }
                 break;
 
+
+
             case FIRE_SHOOT:
+                if (timer.getElapsedTimeSeconds() > 2) {
+                    autoShoot.fire = false;
+                    autoShoot.rapidFire = false;
+
+                    drivebase.follower.followPath(Paths.goToSecondSpike);
+                    pathState = PathState.GO_BALLS2;
+                }
+                break;
+
+            case GO_BALLS2:
+                if (!drivebase.follower.isBusy()) {
+                    intake.setIntakePower(1);
+
+                    drivebase.follower.followPath(Paths.IntakeSecondSpike);
+                    pathState = PathState.GO_INTAKE2;
+                }
+                break;
+
+            case GO_INTAKE2:
+                if (!drivebase.follower.isBusy()) {
+                    drivebase.follower.followPath(Paths.shootSecondSpike);
+                    pathState = PathState.GO_SHOOT2;
+
+
+                }
+                break;
+
+            case GO_SHOOT2:
+                if (!drivebase.follower.isBusy()) {
+                    timer.resetTimer();
+                    pathState = PathState.WAIT_SHOOT2;
+                }
+                break;
+
+            case WAIT_SHOOT2:
+                if (timer.getElapsedTimeSeconds() > 0.4) {
+                    autoShoot.fire = true;
+                    timer.resetTimer();
+                    pathState = PathState.FIRE_SHOOT2;
+                }
+                break;
+
+
+
+            case FIRE_SHOOT2:
                 if (timer.getElapsedTimeSeconds() > 2) {
                     autoShoot.fire = false;
                     autoShoot.rapidFire = false;
@@ -220,13 +271,18 @@ public class RedSixClose extends CommandOpMode {
     // ================= PATH BANK =================
     public static class Paths {
         public static PathChain shootPreload, goToBalls, intakeBalls, shootSpike, leave;
+        public static PathChain goToSecondSpike;
+        public static PathChain IntakeSecondSpike;
+        public static PathChain shootSecondSpike;
+
 
         public static void init(Follower follower) {
 
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(23.453, 120.589).mirror(),
-                                    new Pose(66, 90).mirror()))
+                                    new Pose(66, 90)
+                                            .mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (145 + 180)))
                     .build();
 
@@ -247,13 +303,43 @@ public class RedSixClose extends CommandOpMode {
             shootSpike = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(22.556, 81.778).mirror(),
-                                    new Pose(85.669, 86.146)))
+                                    new Pose(66, 90).mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (145 + 180)))
+                    .build();
+
+            goToSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(66, 90).mirror(),
+
+                                    new Pose(104.000, 59.205)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(225), Math.toRadians(0))
+
+                    .build();
+
+            IntakeSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(104.000, 59.205),
+
+                                    new Pose(134.073, 59.053)
+                            )
+                    ).setConstantHeadingInterpolation(Math.toRadians(0))
+
+                    .build();
+
+            shootSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(134.073, 59.053),
+
+                                    new Pose(85.669, 86.146)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(225))
+
                     .build();
 
             leave = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(62.159, 83.833).mirror(),
+                                    new Pose(85.669, 86.146).mirror(),
                                     new Pose(40.234, 73.545).mirror()))
                     .setLinearHeadingInterpolation(Math.toRadians(180 - (145 + 180)), Math.toRadians(180 - (90 + 180)))
                     .build();

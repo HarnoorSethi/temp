@@ -17,14 +17,17 @@ import org.firstinspires.ftc.teamcode.util.ScoringGoal;
 
 import java.io.File;
 
-@Autonomous(name = "Red Six Close (FSM)", group = "Autonomous")
-public class RedSixClose extends CommandOpMode {
+@Autonomous(name = "Blue Nine Close (FSM)", group = "Autonomous")
+public class BlueNineClose extends CommandOpMode {
 
     // ================= FSM =================
     private enum PathState {
         PRELOAD, WAIT_PRELOAD, FIRE_PRELOAD,
         GO_BALLS, GO_INTAKE,
         GO_SHOOT, WAIT_SHOOT, FIRE_SHOOT,
+
+        GO_BALLS2, GO_INTAKE2,
+        GO_SHOOT2, WAIT_SHOOT2, FIRE_SHOOT2,
         LEAVE
     }
 
@@ -41,14 +44,13 @@ public class RedSixClose extends CommandOpMode {
     // ================= Utils =================
     private Timer timer, fullTime;
 
-    private final Pose startPose = new Pose(23, 120, Math.toRadians(180)).mirror();
+    private final Pose startPose = new Pose(23, 120, Math.toRadians(180));
     private final ScoringGoal goal = ScoringGoal.BLUE;
 
     @Override
     public void initialize() {
 
         drivebase = new Drivebase(hardwareMap);
-
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap, telemetry);
 
@@ -92,14 +94,13 @@ public class RedSixClose extends CommandOpMode {
                     Math.max(
                             Math.min(
                                     drivebase.getPose().distanceFrom(goal.getPose())
-                                            + autoShoot.distanceOffset + 5,
+                                            + autoShoot.distanceOffset,
                                     130
                             ),
                             10
                     )
             );
             drivebase.follower.update();
-            drivebase.distanceOffset = 10;
             run();
             autoShoot.execute();
 
@@ -148,9 +149,7 @@ public class RedSixClose extends CommandOpMode {
             case WAIT_PRELOAD:
                 if (!drivebase.follower.isBusy()) {
                     timer.resetTimer();
-                    if (shooter.isReadyToShoot()){
                     pathState = PathState.FIRE_PRELOAD;
-                    }
                 }
                 break;
 
@@ -204,6 +203,49 @@ public class RedSixClose extends CommandOpMode {
                     autoShoot.fire = false;
                     autoShoot.rapidFire = false;
 
+                    drivebase.follower.followPath(Paths.goToSecondSpike);
+                    pathState = PathState.GO_BALLS2;
+                }
+                break;
+
+            case GO_BALLS2:
+                if (!drivebase.follower.isBusy()) {
+                    intake.setIntakePower(1);
+
+                    drivebase.follower.followPath(Paths.IntakeSecondSpike);
+                    pathState = PathState.GO_INTAKE2;
+                }
+                break;
+
+            case GO_INTAKE2:
+                if (!drivebase.follower.isBusy()) {
+                    drivebase.follower.followPath(Paths.shootSecondSpike);
+                    pathState = PathState.GO_SHOOT2;
+
+
+                }
+                break;
+
+            case GO_SHOOT2:
+                if (!drivebase.follower.isBusy()) {
+                    timer.resetTimer();
+                    pathState = PathState.WAIT_SHOOT2;
+                }
+                break;
+
+            case WAIT_SHOOT2:
+                if (timer.getElapsedTimeSeconds() > 0.4) {
+                    autoShoot.fire = true;
+                    timer.resetTimer();
+                    pathState = PathState.FIRE_SHOOT2;
+                }
+                break;
+
+            case FIRE_SHOOT2:
+                if (timer.getElapsedTimeSeconds() > 2) {
+                    autoShoot.fire = false;
+                    autoShoot.rapidFire = false;
+
                     drivebase.follower.followPath(Paths.leave);
                     pathState = PathState.LEAVE;
                 }
@@ -219,43 +261,73 @@ public class RedSixClose extends CommandOpMode {
 
     // ================= PATH BANK =================
     public static class Paths {
-        public static PathChain shootPreload, goToBalls, intakeBalls, shootSpike, leave;
+        public static PathChain shootPreload, goToBalls, intakeBalls, shootSpike, leave, goToSecondSpike, IntakeSecondSpike, shootSecondSpike;
 
         public static void init(Follower follower) {
 
             shootPreload = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.453, 120.589).mirror(),
-                                    new Pose(66, 90).mirror()))
-                    .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (145 + 180)))
+                                    new Pose(23.453, 120.589),
+                                    new Pose(59, 86)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135 + 180))
                     .build();
 
             goToBalls = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(66, 90).mirror(),
-                                    new Pose(55.903, 86.025).mirror()))
-                    .setLinearHeadingInterpolation(Math.toRadians(180 - (145 + 180)), Math.toRadians(180 - 180))
+                                    new Pose(62.434, 83.685),
+                                    new Pose(55.903, 86.025)))
+                    .setLinearHeadingInterpolation(Math.toRadians(135 + 180), Math.toRadians(180))
                     .build();
 
             intakeBalls = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(55.903, 86.025).mirror(),
-                                    new Pose(22.556, 81.778).mirror()))
-                    .setConstantHeadingInterpolation(Math.toRadians(180 - 180))
+                                    new Pose(55.903, 86.025),
+                                    new Pose(22.556, 83.778)))
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
 
             shootSpike = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(22.556, 81.778).mirror(),
-                                    new Pose(85.669, 86.146)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180 - 180), Math.toRadians(180 - (145 + 180)))
+                                    new Pose(22.556, 83.778),
+                                    new Pose(59.159, 89.833)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135 + 180))
                     .build();
 
             leave = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(62.159, 83.833).mirror(),
-                                    new Pose(40.234, 73.545).mirror()))
-                    .setLinearHeadingInterpolation(Math.toRadians(180 - (145 + 180)), Math.toRadians(180 - (90 + 180)))
+                                    new Pose(59, 89),
+                                    new Pose(40.234, 73.545)))
+                    .setLinearHeadingInterpolation(Math.toRadians(135 + 180), Math.toRadians(90 + 180))
+                    .build();
+
+            goToSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(62.159, 83.833),
+
+                                    new Pose(43.762, 60.477)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(135 + 180), Math.toRadians(180))
+
+                    .build();
+
+            IntakeSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(43.762, 60.477),
+
+                                    new Pose(8.828, 59.053)
+                            )
+                    ).setConstantHeadingInterpolation(Math.toRadians(180))
+
+                    .build();
+
+            shootSecondSpike = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(8.828, 59.053),
+
+                                    new Pose(59, 86)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135 + 180))
+
                     .build();
         }
     }

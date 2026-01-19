@@ -64,7 +64,7 @@ public class Shooter extends SubsystemBase {
 
 
     public static double kP = 0.0008;
-    public static double kI = 0.0006;
+    public static double kI = 0.00065;
     public static double kD = 0.0;
 
 
@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
 
         // TODO: tune
         velocityPID = new PIDController(kP,kI,kD);
-        velocityPID.setTolerance(150);
+        velocityPID.setTolerance(175);
         velocityPID.setIntegrationBounds(-0.3/0.002, 0.3/0.002);
 
 
